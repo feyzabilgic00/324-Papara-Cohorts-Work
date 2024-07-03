@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PatikaCohortsProject.API.Base;
 using PatikaCohortsProject.API.Model;
+using System;
 using System.Collections.Generic;
 
 namespace PatikaCohortsProject.API.Controllers;
@@ -42,6 +44,10 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public IActionResult Post([FromBody] Product product)
     {
+        if (!ModelState.IsValid)
+        {
+            return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+        }
         if (product == null)
         {
             return BadRequest(new ApiResponse<Product>("Invalid product data."));
@@ -54,6 +60,10 @@ public class ProductsController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult Put(int id, [FromBody] Product product)
     {
+        if (!ModelState.IsValid)
+        {
+            return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+        }
         if (product == null)
         {
             var response = new ApiResponse<List<Product>>("Invalid product data.");
