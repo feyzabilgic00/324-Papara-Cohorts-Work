@@ -1,14 +1,16 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using PatikaCohortsProject.API.Base;
 using PatikaCohortsProject.API.Model;
+using PatikaCohortsProject.API.Validators;
 using System;
 using System.Collections.Generic;
 
 namespace PatikaCohortsProject.API.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/products")]
 [ApiController]
 public class ProductsController : ControllerBase
 {
@@ -87,6 +89,42 @@ public class ProductsController : ControllerBase
         var successResponse = new ApiResponse<List<Product>>(_productList);
         return Ok(successResponse);
     }
+
+    [HttpPatch("{id}")]
+    public IActionResult Patch(int id, [FromBody] JsonPatchDocument<Product> patchDoc)
+    {
+        if (patchDoc == null)
+        {
+            return BadRequest(new ApiResponse<Product>("Invalid patch document."));
+        }
+
+        var product = _productList.FirstOrDefault(p => p.Id == id);
+        if (product == null)
+        {
+            return NotFound(new ApiResponse<Product>("Product not found in system."));
+        }
+        var validator = new ProductPatchValidator();
+
+        patchDoc.ApplyTo(product, ModelState);
+
+        var validationResult = validator.Validate(product);
+        if (!validationResult.IsValid)
+        {
+            foreach (var error in validationResult.Errors)
+            {
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var response = new ApiResponse<Product>(product);
+        return Ok(response);
+    }
+
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
