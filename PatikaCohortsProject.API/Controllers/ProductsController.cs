@@ -18,7 +18,9 @@ public class ProductsController : ControllerBase
         _productList = new List<Product>();
         _productList.Add(new Product { Id = 1, Name = "NoteProduct", Description = "Dell Intel i7 Core", Price = 35, Stock = 10 });
         _productList.Add(new Product { Id = 2, Name = "Mouse", Description = "Logitech Bluetooth Mouse", Price = 5, Stock = 20 });
-        _productList.Add(new Product { Id = 3, Name = "Keyboard", Description = "Logitech Bluetooth Keyboard", Price = 3, Stock = 30 });
+        _productList.Add(new Product { Id = 3, Name = "Mouse", Description = "Logitech Bluetooth Mouse", Price = 15, Stock = 20 });
+        _productList.Add(new Product { Id = 4, Name = "Mouse", Description = "Logitech Bluetooth Mouse", Price = 25, Stock = 20 });
+        _productList.Add(new Product { Id = 5, Name = "Keyboard", Description = "Logitech Bluetooth Keyboard", Price = 3, Stock = 30 });
     }
     [HttpGet]
     public IActionResult Get()
@@ -99,6 +101,56 @@ public class ProductsController : ControllerBase
         _productList.Remove(item);
         var successResponse = new ApiResponse<List<Product>>(_productList);
         return Ok(successResponse);
+    }
+
+    //name, price ve stock alanlarına göre artan ve azalan sıralama yapar
+    [HttpGet("list")]
+    public IActionResult List([FromQuery] string name, [FromQuery] string sortBy = "price", [FromQuery] string order = "asc")
+    {
+        var products = _productList.AsQueryable();
+
+        if (!string.IsNullOrEmpty(name))
+        {
+            products = products.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (order.ToLower() == "desc")
+        {
+            switch (sortBy.ToLower())
+            {
+                case "name":
+                    products = products.OrderByDescending(p => p.Name);
+                    break;
+                case "price":
+                    products = products.OrderByDescending(p => p.Price);
+                    break;
+                case "stock":
+                    products = products.OrderByDescending(p => p.Stock);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (sortBy.ToLower())
+            {
+                case "name":
+                    products = products.OrderBy(p => p.Name);
+                    break;
+                case "price":
+                    products = products.OrderBy(p => p.Price);
+                    break;
+                case "stock":
+                    products = products.OrderBy(p => p.Stock);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        var response = new ApiResponse<List<Product>>(products.ToList());
+        return Ok(response);
     }
 }
 
