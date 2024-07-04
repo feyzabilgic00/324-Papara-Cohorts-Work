@@ -27,7 +27,7 @@ public class ProductsController : ControllerBase
     [HttpGet]
     public IActionResult Get()
     {
-        var response = new ApiResponse<List<Product>>(_productList);
+        var response = new ApiResponse<List<Product>>(200, "Success", _productList);
         return Ok(response);
     }
 
@@ -37,11 +37,11 @@ public class ProductsController : ControllerBase
         var item = _productList?.FirstOrDefault(x => x.Id == id);
         if (item == null)
         {
-            var response = new ApiResponse<Product>("Product not found in system.");
+            var response = new ApiResponse<Product>(404, "Product not found in system.");
             return NotFound(response);
         }
 
-        var successResponse = new ApiResponse<Product>(item);
+        var successResponse = new ApiResponse<Product>(200, "Success", item);
         return Ok(successResponse);
     }
 
@@ -54,11 +54,11 @@ public class ProductsController : ControllerBase
         }
         if (product == null)
         {
-            return BadRequest(new ApiResponse<Product>("Invalid product data."));
+            return BadRequest(new ApiResponse<Product>(400, "Invalid product data.", product));
         }
         _productList.Add(product);
         var createdResponse = new ApiResponse<List<Product>>(_productList);
-        return CreatedAtAction(nameof(Get), new { id = product.Id }, createdResponse);
+        return CreatedAtAction(nameof(Get), new { id = product.Id }, new ApiResponse<Product>(201, "Product created successfully.", product));
     }
 
     [HttpPut("{id}")]
@@ -66,18 +66,13 @@ public class ProductsController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return StatusCode(StatusCodes.Status400BadRequest, ModelState);
-        }
-        if (product == null)
-        {
-            var response = new ApiResponse<List<Product>>("Invalid product data.");
-            return BadRequest(response);
+            return BadRequest(new ApiResponse<Product>(400, "Invalid product data.", product));
         }
 
         var item = _productList.FirstOrDefault(x => x.Id == id);
-        if (item is null)
+        if (item == null)
         {
-            var response = new ApiResponse<List<Product>>("Item not found in system.");
+            var response = new ApiResponse<Product>(404, "Product not found in system.");
             return NotFound(response);
         }
 
@@ -86,7 +81,7 @@ public class ProductsController : ControllerBase
         item.Price = product.Price;
         item.Stock = product.Stock;
 
-        var successResponse = new ApiResponse<List<Product>>(_productList);
+        var successResponse = new ApiResponse<List<Product>>(200, "Product updated successfully.", _productList);
         return Ok(successResponse);
     }
 
@@ -95,13 +90,13 @@ public class ProductsController : ControllerBase
     {
         if (patchDoc == null)
         {
-            return BadRequest(new ApiResponse<Product>("Invalid patch document."));
+            return BadRequest(new ApiResponse<Product>(400, "Invalid patch document."));
         }
 
         var product = _productList.FirstOrDefault(p => p.Id == id);
         if (product == null)
         {
-            return NotFound(new ApiResponse<Product>("Product not found in system."));
+            return NotFound(new ApiResponse<Product>(404, "Product not found in system."));
         }
         var validator = new ProductPatchValidator();
 
@@ -132,12 +127,12 @@ public class ProductsController : ControllerBase
         var item = _productList.FirstOrDefault(x => x.Id == id);
         if (item == null)
         {
-            var response = new ApiResponse<List<Product>>("Product not found in system.");
+            var response = new ApiResponse<List<Product>>(404, "Product not found in system.");
             return NotFound(response);
         }
 
         _productList.Remove(item);
-        var successResponse = new ApiResponse<List<Product>>(_productList);
+        var successResponse = new ApiResponse<List<Product>>(200, "Product deleted successfully.", _productList);
         return Ok(successResponse);
     }
 
@@ -147,9 +142,16 @@ public class ProductsController : ControllerBase
     {
         var products = _productList.AsQueryable();
 
-        if (!string.IsNullOrEmpty(name))
+        if (string.IsNullOrEmpty(name))
         {
-            products = products.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+            return BadRequest(new ApiResponse<string>(400, "The 'name' parameter cannot be empty."));
+        }
+
+        products = products.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+
+        if (!products.Any())
+        {
+            return NotFound(new ApiResponse<string>(404, "No products found with the specified name."));
         }
 
         if (order.ToLower() == "desc")
@@ -187,7 +189,7 @@ public class ProductsController : ControllerBase
             }
         }
 
-        var response = new ApiResponse<List<Product>>(products.ToList());
+        var response = new ApiResponse<List<Product>>(200, "Success", products.ToList());
         return Ok(response);
     }
 }

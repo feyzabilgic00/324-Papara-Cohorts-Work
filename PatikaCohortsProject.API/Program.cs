@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Newtonsoft.Json.Serialization;
+using PatikaCohortsProject.API.Base;
 using PatikaCohortsProject.API.Model;
 using PatikaCohortsProject.API.Validators;
 
@@ -28,6 +29,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<CustomExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
