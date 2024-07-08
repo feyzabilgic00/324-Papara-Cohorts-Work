@@ -3,7 +3,7 @@ using PatikaCohortsProject.API.Model;
 
 namespace PatikaCohortsProject.API.Validators;
 
-public class ProductValidator: AbstractValidator<Product>
+public class ProductValidator: AbstractValidator<ProductEntity>
 {
     public ProductValidator()
     {

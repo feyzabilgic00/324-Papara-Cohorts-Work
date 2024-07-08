@@ -1,8 +1,9 @@
-﻿namespace PatikaCohortsProject.API.Model;
+﻿using PatikaCohortsProject.API.Base;
 
-public class Product
+namespace PatikaCohortsProject.API.Model;
+
+public class ProductEntity: BaseEntity
 {
-    public int Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public decimal Price { get; set; }
