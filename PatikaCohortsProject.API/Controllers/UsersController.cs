@@ -85,6 +85,17 @@ namespace PatikaCohortsProject.API.Controllers
             var successResponse = new ApiResponse<List<UserEntity>>(200, "user updated successfully.");
             return Ok(successResponse);
         }
-
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(string email, string password)
+        {
+            var login = await _userService.Login(email, password);
+            if (login)
+            {
+                var successResponse = new ApiResponse<UserEntity>(200, "Login successfully.");
+                return Ok(successResponse);
+            }
+            var failedResponse = new ApiResponse<UserEntity>(500, "Login failed.");
+            return BadRequest(failedResponse);
+        }
     }
 }

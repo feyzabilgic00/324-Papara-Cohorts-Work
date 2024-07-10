@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
 using PatikaCohortsProject.API.Context;
 using PatikaCohortsProject.API.Extensions;
+using PatikaCohortsProject.API.Middlewares;
 using PatikaCohortsProject.API.Model;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +38,7 @@ if (app.Environment.IsDevelopment())
 
 //app.UseMiddleware<CustomExceptionMiddleware>();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<RequestResponseMiddleware>();
 
 app.UseHttpsRedirection();
 
