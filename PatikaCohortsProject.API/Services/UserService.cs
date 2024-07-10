@@ -16,10 +16,6 @@ public class UserService : GenericService<UserEntity>, IUserService
     public async Task<bool> Login(string email, string password)
     {
         var user = await _readRepository.GetSingleAsync(x => x.Email == email && x.Password == password);
-        if (user is not null)
-        {
-            return true;
-        }
-        return false;
+        return user is not null;
     }
 }
