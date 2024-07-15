@@ -1,14 +1,24 @@
+using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
 using PatikaCohortsProject.API.Context;
 using PatikaCohortsProject.API.Extensions;
+using PatikaCohortsProject.API.Mappers;
 using PatikaCohortsProject.API.Middlewares;
 using PatikaCohortsProject.API.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+var mapperConfig = new MapperConfiguration(mc =>
+{
+    mc.AddProfile(new GeneralMapper());
+});
+
+IMapper mapper = mapperConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 
 builder.Services.AddControllers()
     .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ProductEntity>())
