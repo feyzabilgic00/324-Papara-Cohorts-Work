@@ -20,12 +20,14 @@ var mapperConfig = new MapperConfiguration(mc =>
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
-builder.Services.AddControllers()
-    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ProductEntity>())
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-    });
+//builder.Services.AddControllers()
+//    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ProductEntity>())
+//    .AddNewtonsoftJson(options =>
+//    {
+//        options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+//    });
+
+builder.Services.Validator();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {

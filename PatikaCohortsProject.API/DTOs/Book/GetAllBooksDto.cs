@@ -9,5 +9,6 @@ public class GetAllBooksDto
     public int PageCount { get; set; }
     public decimal Price { get; set; }
     public string Genre { get; set; }
+    public int Stock { get; set; }
     public DateTime PublishDate { get; set; }
 }
